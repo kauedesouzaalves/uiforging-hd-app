@@ -25,6 +25,7 @@ local DOT_LIFETIME = 1.5
 
 local UIForging = {}
 UIForging._instance = instance
+UIForging.debrisDots = {} :: { GuiButton }
 UIForging.dotCompleted = Instance.new("BindableEvent")
 UIForging._isGameActive = false
 UIForging._cameraData = {
@@ -198,9 +199,7 @@ end
 -- instantiation, entrance animation (with yield), timer setup and interaction setup,
 -- all protected by pcall to prevent crashes
 function UIForging._spawnDot()
-	if not UIForging.isGameActive() then
-		return
-	end
+	if not UIForging.isGameActive() then return end
 
 	local dot = UIForging._createDotInstance()
 
@@ -250,9 +249,11 @@ function UIForging.stopMinigame()
 
 	for _, child in dotSpawnZone:GetChildren() do
 		if child:IsA("GuiButton") then
-			child:Destroy()
+			table.insert(UIForging.debrisDots, child)
 		end
 	end
+
+	dotSpawnZone:ClearAllChildren()
 end
 
 -- Creates an "explosion" effect by expanding the dot's body while simultaneously
@@ -336,9 +337,14 @@ function UIForging._onDotCompleted(dot: GuiButton, accuracy: number)
 		end)
 	end
 
+	local debrisIndex = table.find(UIForging.debrisDots, dot)
+	if debrisIndex then
+		table.remove(UIForging.debrisDots, debrisIndex)
+		return
+	end
+
 	if UIForging.isGameActive() then
 		task.wait(DOT_SPAWN_DELAY)
-		
 		UIForging._spawnDot()
 	end
 end
