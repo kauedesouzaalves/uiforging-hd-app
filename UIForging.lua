@@ -198,7 +198,7 @@ end
 -- instantiation, entrance animation (with yield), timer setup and interaction setup,
 -- all protected by pcall to prevent crashes
 function UIForging._spawnDot()
-	if not UIForging._isGameActive then
+	if not UIForging.isGameActive() then
 		return
 	end
 
@@ -336,8 +336,9 @@ function UIForging._onDotCompleted(dot: GuiButton, accuracy: number)
 		end)
 	end
 
-	if UIForging._isGameActive then
+	if UIForging.isGameActive() then
 		task.wait(DOT_SPAWN_DELAY)
+		
 		UIForging._spawnDot()
 	end
 end
